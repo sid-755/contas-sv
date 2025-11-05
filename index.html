@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Controle de Despesas</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+    font-family: "Segoe UI", sans-serif;
+    background: #f3f7fa;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+}
+
+.container{
+    width: 95%;
+    max-width: 900px;
+    margin-top: 25px;
+    margin-bottom: 40px;
+}
+
+h1{
+    text-align: center;
+    color: #444;
+    margin-bottom: 18px;
+    font-size: 1.9rem;
+}
+
+.row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+.input-flex { flex: 2; }
+.input-small { flex: 1; }
+
+input, button{
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid #cfcfcf;
+    margin: 5px 0;
+    width: 100%;
+    font-size: 15px;
+    box-sizing: border-box;
+}
+
+button{
+    background: #1abc9c;
+    border: none;
+    color: white;
+    font-weight: bold;
+    transition: 0.2s;
+}
+button:hover{ opacity: 0.95; }
+
+.table-container{
+    background: white;
+    padding: 10px;
+    border-radius: 12px;
+    overflow-x: auto;
+    margin-top: 15px;
+    box-shadow: 0 0 10px #00000018;
+}
+
+table{
+    width: 100%;
+    min-width: 500px;
+    border-collapse: collapse;
+}
+
+th{
+    background: #27ae60;
+    color: white;
+    padding: 14px;
+    font-size: 16px;
+    text-align: left;
+}
+
+td{
+    padding: 12px;
+    border-bottom: 1px solid #e5e5e5;
+    color: #333;
+}
+
+/* status badges look clickable */
+.status-pago{
+    background: #0a8a07;
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 25px;
+    font-size: 14px;
+    cursor: pointer;
+    display: inline-block;
+}
+.status-aberto{
+    background: #e71d1d;
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 25px;
+    font-size: 14px;
+    cursor: pointer;
+    display: inline-block;
+}
+
+#excluirBtn{
+    background: #e74c3c;
+    margin-top: 8px;
+}
+
+/* Cards */
+.cards{
+    margin-top: 25px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.card{
+    flex: 1;
+    min-width: 150px;
+    padding: 20px;
+    border-radius: 14px;
+    color: white;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.1rem;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+}
+
+.card.aberto{ background: #e74c3c; }
+.card.pago{ background: #27ae60; }
+.card.total{ background: #2980b9; }
+
+/* small helpers */
+.small-muted { font-size: 0.9rem; color: #fff; opacity: 0.9; font-weight: 400; display: block; margin-top: 6px; }
+
+/* MOBILE */
+@media(max-width: 600px){
+    h1{ font-size: 1.5rem; }
+    .row { flex-direction: column; }
+    .card{ width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>💰 Controle de Despesas</h1>
+
+    <div class="row">
+      <input class="input-flex" type="text" id="nome" placeholder="Nome da despesa (ex: aluguel)">
+      <input class="input-small" type="number" id="valor" placeholder="Valor (R$)" step="0.01" min="0">
+      <button style="flex:0 0 120px;" onclick="adicionar()">Adicionar</button>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th style="text-align:right;">Valor</th>
+                    <th style="text-align:center;">Status</th>
+                </tr>
+            </thead>
+            <tbody id="lista"></tbody>
+        </table>
+    </div>
+
+    <div class="row" style="margin-top:12px;">
+      <input id="excluirNome" placeholder="Nome da despesa para excluir">
+      <button id="excluirBtn" onclick="excluir()">Excluir</button>
+    </div>
+
+    <div class="cards">
+        <div class="card aberto" id="aberto">
+            Em aberto
+            <span class="small-muted" id="abertoValor">R$ 0,00</span>
+        </div>
+        <div class="card pago" id="pago">
+            Pago
+            <span class="small-muted" id="pagoValor">R$ 0,00</span>
+        </div>
+        <div class="card total" id="total">
+            Total
+            <span class="small-muted" id="totalValor">R$ 0,00</span>
+        </div>
+    </div>
+</div>
+
+<script>
+/* ---------- Dados (localStorage) ---------- */
+let despesas = JSON.parse(localStorage.getItem("despesas_v2")) || [
+  { id: 1, nome: "moto", valor: 591, status: "Pago" },
+  { id: 2, nome: "chácara", valor: 680, status: "Pago" },
+  { id: 3, nome: "casa", valor: 986, status: "Em aberto" }
+];
+
+function salvar(){
+    localStorage.setItem("despesas_v2", JSON.stringify(despesas));
+}
+
+/* formata número para moeda BRL */
+function formatoBRL(v){
+  const n = Number(v) || 0;
+  return n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+
+/* ---------- Render ---------- */
+function carregarTabela(){
+    let tabela = "";
+    let totalPago = 0, totalAberto = 0;
+
+    despesas.forEach((d, i) => {
+        const valorFmt = formatoBRL(d.valor);
+        tabela += `
+        <tr data-index="${i}">
+            <td style="text-align:left;">${escapeHtml(d.nome)}</td>
+            <td style="text-align:right;">${valorFmt}</td>
+            <td style="text-align:center;">
+                <span class="${d.status === "Pago" ? "status-pago" : "status-aberto"}" onclick="toggleStatus(${i})">
+                    ${d.status}
+                </span>
+            </td>
+        </tr>`;
+        if(d.status === "Pago") totalPago += Number(d.valor);
+        else totalAberto += Number(d.valor);
+    });
+
+    document.getElementById("lista").innerHTML = tabela;
+    document.getElementById("pagoValor").textContent = formatoBRL(totalPago);
+    document.getElementById("abertoValor").textContent = formatoBRL(totalAberto);
+    document.getElementById("totalValor").textContent = formatoBRL(totalPago + totalAberto);
+}
+
+/* escape simples para evitar injeção */
+function escapeHtml(text) {
+  if(!text && text !== 0) return "";
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+/* ---------- Ações ---------- */
+function adicionar(){
+    const nomeEl = document.getElementById("nome");
+    const valorEl = document.getElementById("valor");
+    const nome = nomeEl.value.trim();
+    const valor = parseFloat(valorEl.value);
+
+    if(!nome || isNaN(valor)){
+        alert("Preencha nome e valor corretamente.");
+        return;
+    }
+
+    const proximoId = despesas.length ? Math.max(...despesas.map(d=>d.id)) + 1 : 1;
+    despesas.push({ id: proximoId, nome, valor: Number(valor), status: "Em aberto" });
+    salvar();
+    carregarTabela();
+    nomeEl.value = "";
+    valorEl.value = "";
+}
+
+/* exclui pela substring do nome (case insensitive), se quiser exato, mude o filtro */
+function excluir(){
+    const q = document.getElementById("excluirNome").value.trim().toLowerCase();
+    if(!q){ alert("Digite o nome da despesa para excluir."); return; }
+
+    const antes = despesas.length;
+    despesas = despesas.filter(d => d.nome.toLowerCase() !== q);
+    if(despesas.length === antes){
+        if(!confirm("Nenhuma despesa com esse nome exato encontrada. Deseja excluir por substring (itens que contenham o texto)?")) return;
+        despesas = despesas.filter(d => !d.nome.toLowerCase().includes(q));
+    }
+    salvar();
+    carregarTabela();
+    document.getElementById("excluirNome").value = "";
+}
+
+/* alterna status e salva */
+function toggleStatus(index){
+    if(index == null || !despesas[index]) return;
+    despesas[index].status = despesas[index].status === "Pago" ? "Em aberto" : "Pago";
+    salvar();
+    carregarTabela();
+}
+
+/* permite alterar status com tecla Enter no campo excluirNome (não obrigatório) */
+document.getElementById("excluirNome").addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter') excluir();
+});
+
+/* inicializa */
+carregarTabela();
+</script>
+
+</body>
+</html>
