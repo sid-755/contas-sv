@@ -1,300 +1,238 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<title>Controle de Despesas</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Beco Lanches - Cardápio</title>
 
 <style>
-body{
-    font-family: "Segoe UI", sans-serif;
-    background: #f3f7fa;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
+/* ====== ESTILO GERAL ====== */
+:root{
+  --cor1:#ff4d2b;
+  --cor2:#ff8143;
+  --bg:#fff7f2;
+  --text:#3d3d3d;
+  --card:#ffffff;
+}
+*{box-sizing:border-box;font-family:'Inter',Arial,sans-serif;}
+body{margin:0;background:var(--bg);color:var(--text);}
+
+/* ====== HEADER ====== */
+header{
+  background:linear-gradient(90deg,var(--cor1),var(--cor2));
+  padding:14px 16px;
+  color:#fff;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+header h1{margin:0;font-size:20px;font-weight:700;}
+.btn-admin-toggle{
+  border:0; padding:8px 12px; border-radius:8px;
+  background:rgba(255,255,255,.2); color:#fff; cursor:pointer;
 }
 
-.container{
-    width: 95%;
-    max-width: 900px;
-    margin-top: 25px;
-    margin-bottom: 40px;
+/* ====== ÁREA PÚBLICA ====== */
+.container{max-width:900px;margin:20px auto;padding:0 14px;}
+.section-card{
+  background:var(--card);
+  padding:16px;
+  border-radius:14px;
+  box-shadow:0 6px 18px rgba(0,0,0,.07);
+}
+.menu-grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));}
+.item-card{
+  background:#fff;
+  padding:14px;
+  border-radius:12px;
+  border:1px solid #ffe3d6;
+  transition:transform .15s;
+}
+.item-card:hover{transform:scale(1.02);}
+.item-card h3{margin:0;font-size:17px;}
+.price{color:var(--cor1);font-weight:700;font-size:16px;margin-top:6px;}
+.muted{font-size:13px;color:#777;}
+
+/* ====== ADMIN SLIDE PANEL ====== */
+#adminPanel{
+  position:fixed;
+  top:0; right:-100%;
+  width:90%;
+  max-width:400px;
+  height:100%;
+  background:#fff;
+  box-shadow:-4px 0 22px rgba(0,0,0,.28);
+  padding:16px;
+  overflow-y:auto;
+  transition:right .35s;
+}
+#adminPanel.open{right:0;}
+.close-admin{
+  background:var(--cor1);color:#fff;
+  padding:6px 12px;border:0;border-radius:8px;margin-bottom:10px;cursor:pointer;
 }
 
-h1{
-    text-align: center;
-    color: #444;
-    margin-bottom: 18px;
-    font-size: 1.9rem;
+/* FORM */
+input,textarea{
+  width:100%;padding:8px 10px;margin-bottom:10px;
+  border:1px solid #ffd1be;border-radius:8px;
+  font-size:15px;
 }
-
-.row {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 8px;
-}
-.input-flex { flex: 2; }
-.input-small { flex: 1; }
-
-input, button{
-    padding: 12px 14px;
-    border-radius: 10px;
-    border: 1px solid #cfcfcf;
-    margin: 5px 0;
-    width: 100%;
-    font-size: 15px;
-    box-sizing: border-box;
-}
-
 button{
-    background: #1abc9c;
-    border: none;
-    color: white;
-    font-weight: bold;
-    transition: 0.2s;
+  padding:10px 14px;border-radius:8px;border:0;cursor:pointer;font-weight:600;
 }
-button:hover{ opacity: 0.95; }
-
-.table-container{
-    background: white;
-    padding: 10px;
-    border-radius: 12px;
-    overflow-x: auto;
-    margin-top: 15px;
-    box-shadow: 0 0 10px #00000018;
+.btn-primary{background:var(--cor1);color:#fff;}
+.btn-outline{background:#fff;border:1px solid var(--cor1);color:var(--cor1);}
+.admin-list .row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:10px 0;border-bottom:1px dashed #eee;
 }
-
-table{
-    width: 100%;
-    min-width: 500px;
-    border-collapse: collapse;
-}
-
-th{
-    background: #27ae60;
-    color: white;
-    padding: 14px;
-    font-size: 16px;
-    text-align: left;
-}
-
-td{
-    padding: 12px;
-    border-bottom: 1px solid #e5e5e5;
-    color: #333;
-}
-
-/* status badges look clickable */
-.status-pago{
-    background: #0a8a07;
-    color: #fff;
-    padding: 6px 14px;
-    border-radius: 25px;
-    font-size: 14px;
-    cursor: pointer;
-    display: inline-block;
-}
-.status-aberto{
-    background: #e71d1d;
-    color: #fff;
-    padding: 6px 14px;
-    border-radius: 25px;
-    font-size: 14px;
-    cursor: pointer;
-    display: inline-block;
-}
-
-#excluirBtn{
-    background: #e74c3c;
-    margin-top: 8px;
-}
-
-/* Cards */
-.cards{
-    margin-top: 25px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-.card{
-    flex: 1;
-    min-width: 150px;
-    padding: 20px;
-    border-radius: 14px;
-    color: white;
-    text-align: center;
-    font-weight: bold;
-    font-size: 1.1rem;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.08);
-}
-
-.card.aberto{ background: #e74c3c; }
-.card.pago{ background: #27ae60; }
-.card.total{ background: #2980b9; }
-
-/* small helpers */
-.small-muted { font-size: 0.9rem; color: #fff; opacity: 0.9; font-weight: 400; display: block; margin-top: 6px; }
-
-/* MOBILE */
-@media(max-width: 600px){
-    h1{ font-size: 1.5rem; }
-    .row { flex-direction: column; }
-    .card{ width: 100%; }
-}
+.small-btn{padding:6px 10px;font-size:13px;border-radius:6px;}
+.btn-danger{background:#e03122;color:#fff;}
 </style>
 </head>
+
 <body>
 
+<header>
+  <h1>Beco Lanches</h1>
+  <button class="btn-admin-toggle" id="openAdmin">Admin</button>
+</header>
+
 <div class="container">
-    <h1>💰 Controle de Despesas</h1>
 
-    <div class="row">
-      <input class="input-flex" type="text" id="nome" placeholder="Nome da despesa (ex: aluguel)">
-      <input class="input-small" type="number" id="valor" placeholder="Valor (R$)" step="0.01" min="0">
-      <button style="flex:0 0 120px;" onclick="adicionar()">Adicionar</button>
-    </div>
+  <div class="section-card">
+    <h2 style="margin:0 0 6px 0;">Cardápio</h2>
+    <div class="muted" id="lastLoaded">Carregando...</div>
+    <input id="search" type="text" placeholder="Buscar item..." style="margin-top:12px;">
+    <div id="menuGrid" class="menu-grid" style="margin-top:14px;"></div>
+  </div>
 
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>Nome</th>
-                    <th style="text-align:right;">Valor</th>
-                    <th style="text-align:center;">Status</th>
-                </tr>
-            </thead>
-            <tbody id="lista"></tbody>
-        </table>
-    </div>
+</div>
 
-    <div class="row" style="margin-top:12px;">
-      <input id="excluirNome" placeholder="Nome da despesa para excluir">
-      <button id="excluirBtn" onclick="excluir()">Excluir</button>
-    </div>
+<!-- PAINEL ADMIN -->
+<div id="adminPanel">
+  <button class="close-admin" id="closeAdmin">Fechar</button>
 
-    <div class="cards">
-        <div class="card aberto" id="aberto">
-            Em aberto
-            <span class="small-muted" id="abertoValor">R$ 0,00</span>
-        </div>
-        <div class="card pago" id="pago">
-            Pago
-            <span class="small-muted" id="pagoValor">R$ 0,00</span>
-        </div>
-        <div class="card total" id="total">
-            Total
-            <span class="small-muted" id="totalValor">R$ 0,00</span>
-        </div>
-    </div>
+  <h2>Gerenciar Cardápio</h2>
+  <div class="muted" style="margin-bottom:10px;">Senha: <b>senha123</b></div>
+
+  <input id="adminPass" type="password" placeholder="Digite a senha para entrar">
+  <button id="loginBtn" class="btn-primary" style="width:100%;margin-bottom:20px;">Entrar</button>
+
+  <div id="adminContent" style="display:none">
+
+    <h3>Novo / Editar</h3>
+    <input id="nome" placeholder="Nome">
+    <textarea id="desc" placeholder="Descrição"></textarea>
+    <input id="cat" placeholder="Categoria (Ex: Lanches)">
+    <input id="price" type="number" step="0.01" placeholder="Preço (R$)">
+    <button id="saveItem" class="btn-primary" style="width:100%;">Salvar Item</button>
+    
+    <hr>
+    <h3>Itens</h3>
+    <div class="admin-list" id="adminList"></div>
+
+    <hr>
+    <button id="downloadJson" class="btn-outline" style="width:100%;">Salvar JSON (Download)</button>
+    <button id="loadDemo" class="btn-outline" style="width:100%;margin-top:8px;">Carregar Demo</button>
+
+  </div>
 </div>
 
 <script>
-/* ---------- Dados (localStorage) ---------- */
-let despesas = JSON.parse(localStorage.getItem("despesas_v2")) || [
-  { id: 1, nome: "moto", valor: 591, status: "Pago" },
-  { id: 2, nome: "chácara", valor: 680, status: "Pago" },
-  { id: 3, nome: "casa", valor: 986, status: "Em aberto" }
-];
+let menu = [];
+let editing = null;
 
-function salvar(){
-    localStorage.setItem("despesas_v2", JSON.stringify(despesas));
+const menuGrid = document.getElementById("menuGrid");
+const adminPanel = document.getElementById("adminPanel");
+const adminList = document.getElementById("adminList");
+
+function format(p){return p.toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}
+
+function render(){
+  menuGrid.innerHTML="";
+  let q = search.value.toLowerCase();
+  menu.filter(i=>i.nome.toLowerCase().includes(q)).forEach(i=>{
+    menuGrid.innerHTML+=`
+      <div class="item-card">
+        <h3>${i.nome}</h3>
+        <div class="muted">${i.descricao||""}</div>
+        <div class="price">${format(i.preco)}</div>
+      </div>`;
+  });
+  localStorage.setItem("menuData",JSON.stringify(menu));
 }
 
-/* formata número para moeda BRL */
-function formatoBRL(v){
-  const n = Number(v) || 0;
-  return n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+function renderAdmin(){
+  adminList.innerHTML="";
+  menu.forEach(i=>{
+    adminList.innerHTML+=`
+      <div class="row">
+        <div><b>${i.nome}</b><br><span class="muted">${format(i.preco)}</span></div>
+        <div>
+          <button class="small-btn btn-outline" onclick="edit('${i.id}')">✏️</button>
+          <button class="small-btn btn-danger" onclick="delItem('${i.id}')">🗑️</button>
+        </div>
+      </div>`;
+  });
 }
 
-/* ---------- Render ---------- */
-function carregarTabela(){
-    let tabela = "";
-    let totalPago = 0, totalAberto = 0;
-
-    despesas.forEach((d, i) => {
-        const valorFmt = formatoBRL(d.valor);
-        tabela += `
-        <tr data-index="${i}">
-            <td style="text-align:left;">${escapeHtml(d.nome)}</td>
-            <td style="text-align:right;">${valorFmt}</td>
-            <td style="text-align:center;">
-                <span class="${d.status === "Pago" ? "status-pago" : "status-aberto"}" onclick="toggleStatus(${i})">
-                    ${d.status}
-                </span>
-            </td>
-        </tr>`;
-        if(d.status === "Pago") totalPago += Number(d.valor);
-        else totalAberto += Number(d.valor);
-    });
-
-    document.getElementById("lista").innerHTML = tabela;
-    document.getElementById("pagoValor").textContent = formatoBRL(totalPago);
-    document.getElementById("abertoValor").textContent = formatoBRL(totalAberto);
-    document.getElementById("totalValor").textContent = formatoBRL(totalPago + totalAberto);
+function edit(id){
+  let i = menu.find(x=>x.id===id);
+  editing = id;
+  nome.value=i.nome; desc.value=i.descricao; cat.value=i.categoria; price.value=i.preco;
 }
 
-/* escape simples para evitar injeção */
-function escapeHtml(text) {
-  if(!text && text !== 0) return "";
-  return String(text)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
+function delItem(id){
+  menu = menu.filter(x=>x.id!==id);
+  render(); renderAdmin();
 }
 
-/* ---------- Ações ---------- */
-function adicionar(){
-    const nomeEl = document.getElementById("nome");
-    const valorEl = document.getElementById("valor");
-    const nome = nomeEl.value.trim();
-    const valor = parseFloat(valorEl.value);
+document.getElementById("saveItem").onclick=()=>{
+  if(!nome.value)return alert("Nome obrigatório");
+  let obj={id:editing||Date.now(),nome:nome.value,descricao:desc.value,categoria:cat.value,preco:Number(price.value)};
+  if(editing)menu=menu.map(x=>x.id===editing?obj:x);
+  else menu.push(obj);
+  editing=null; nome.value=desc.value=cat.value=price.value="";
+  render(); renderAdmin();
+};
 
-    if(!nome || isNaN(valor)){
-        alert("Preencha nome e valor corretamente.");
-        return;
-    }
+document.getElementById("downloadJson").onclick=()=>{
+  let v=new Blob([JSON.stringify(menu,null,2)],{type:"application/json"});
+  let a=document.createElement("a");a.href=URL.createObjectURL(v);a.download="menu.json";a.click();
+};
 
-    const proximoId = despesas.length ? Math.max(...despesas.map(d=>d.id)) + 1 : 1;
-    despesas.push({ id: proximoId, nome, valor: Number(valor), status: "Em aberto" });
-    salvar();
-    carregarTabela();
-    nomeEl.value = "";
-    valorEl.value = "";
-}
+document.getElementById("loadDemo").onclick=()=>{
+  menu=[
+    {id:"1",nome:"X-Burger",descricao:"Pão, carne, queijo",categoria:"Lanches",preco:15},
+    {id:"2",nome:"Batata Frita",descricao:"Crocrante e dourada",categoria:"Porções",preco:10}
+  ];
+  render(); renderAdmin();
+};
 
-/* exclui pela substring do nome (case insensitive), se quiser exato, mude o filtro */
-function excluir(){
-    const q = document.getElementById("excluirNome").value.trim().toLowerCase();
-    if(!q){ alert("Digite o nome da despesa para excluir."); return; }
+/* ADMIN LOGIN */
+document.getElementById("loginBtn").onclick=()=>{
+  if(adminPass.value==="senha123"){
+    document.getElementById("adminContent").style.display="block";
+    adminPass.value="";
+  } else alert("Senha incorreta");
+};
 
-    const antes = despesas.length;
-    despesas = despesas.filter(d => d.nome.toLowerCase() !== q);
-    if(despesas.length === antes){
-        if(!confirm("Nenhuma despesa com esse nome exato encontrada. Deseja excluir por substring (itens que contenham o texto)?")) return;
-        despesas = despesas.filter(d => !d.nome.toLowerCase().includes(q));
-    }
-    salvar();
-    carregarTabela();
-    document.getElementById("excluirNome").value = "";
-}
+/* OPEN/CLOSE PANEL */
+openAdmin.onclick=()=>adminPanel.classList.add("open");
+closeAdmin.onclick=()=>adminPanel.classList.remove("open");
 
-/* alterna status e salva */
-function toggleStatus(index){
-    if(index == null || !despesas[index]) return;
-    despesas[index].status = despesas[index].status === "Pago" ? "Em aberto" : "Pago";
-    salvar();
-    carregarTabela();
-}
-
-/* permite alterar status com tecla Enter no campo excluirNome (não obrigatório) */
-document.getElementById("excluirNome").addEventListener('keydown', (e)=>{
-    if(e.key === 'Enter') excluir();
-});
-
-/* inicializa */
-carregarTabela();
+/* LOAD DATA */
+(function(){
+  try{menu=JSON.parse(localStorage.getItem("menuData"))||[]}catch{menu=[];}
+  if(menu.length===0)menu=[
+    {id:"1",nome:"X-Salada",descricao:"Clássico da casa",categoria:"Lanches",preco:18},
+    {id:"2",nome:"Coca-Cola 350ml",descricao:"Geladinha",categoria:"Bebidas",preco:6}
+  ];
+  render(); renderAdmin();
+  lastLoaded.textContent="Pronto ✔️";
+})();
 </script>
 
 </body>
