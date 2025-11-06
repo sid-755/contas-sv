@@ -1,24 +1,46 @@
 const urlJSON = "https://raw.githubusercontent.com/USUARIO/REPOSITORIO/main/data/cardapio.json";
+
 [
   {
     "id": "1",
-    "nome": "X-Salada",
-    "descricao": "Clássico da casa",
+    "nome": "X-Burger",
+    "descricao": "Pão, carne, queijo",
     "categoria": "Lanches",
-    "preco": 18
+    "preco": 15
   },
   {
     "id": "2",
-    "nome": "Coca-Cola 350ml",
-    "descricao": "Geladinha",
-    "categoria": "Bebidas",
-    "preco": 6
+    "nome": "Batata Frita",
+    "descricao": "Crocrante e dourada",
+    "categoria": "Porções",
+    "preco": 10
   },
   {
-    "id": 1762387831616,
+    "id": 1762388030132,
+    "nome": "sdfv",
+    "descricao": "qwdc",
+    "categoria": "qwec",
+    "preco": 0
+  },
+  {
+    "id": 1762388036756,
+    "nome": "qdwef",
+    "descricao": "qwde",
+    "categoria": "qwde",
+    "preco": 34444
+  },
+  {
+    "id": 1762388285432,
     "nome": "sidnei",
-    "descricao": "123",
-    "categoria": "xis",
-    "preco": 45
+    "descricao": "",
+    "categoria": "jnbkjbsad",
+    "preco": 36
+  },
+  {
+    "id": 1762388292897,
+    "nome": "sda",
+    "descricao": "asdas",
+    "categoria": "sda",
+    "preco": 99
   }
 ]
