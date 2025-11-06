@@ -1,1 +1,24 @@
 const urlJSON = "https://raw.githubusercontent.com/USUARIO/REPOSITORIO/main/data/cardapio.json";
+[
+  {
+    "id": "1",
+    "nome": "X-Salada",
+    "descricao": "Clássico da casa",
+    "categoria": "Lanches",
+    "preco": 18
+  },
+  {
+    "id": "2",
+    "nome": "Coca-Cola 350ml",
+    "descricao": "Geladinha",
+    "categoria": "Bebidas",
+    "preco": 6
+  },
+  {
+    "id": 1762387831616,
+    "nome": "sidnei",
+    "descricao": "123",
+    "categoria": "xis",
+    "preco": 45
+  }
+]
